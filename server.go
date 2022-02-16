@@ -2,13 +2,14 @@ package main
 
 import (
 	"io"
+	"net/http"
 	"os"
 
 	"github.com/Nishith-Savla/golang-gin-poc/controller"
 	"github.com/Nishith-Savla/golang-gin-poc/middlewares"
 	"github.com/Nishith-Savla/golang-gin-poc/service"
 	"github.com/gin-gonic/gin"
-	"github.com/tpkeeper/gin-dump"
+	gindump "github.com/tpkeeper/gin-dump"
 )
 
 var (
@@ -35,7 +36,12 @@ func main() {
 	})
 
 	server.POST("/videos", func(ctx *gin.Context) {
-		ctx.JSON(200, videoController.Save(ctx))
+		err := videoController.Save(ctx)
+		if err != nil {
+			ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		} else {
+			ctx.JSON(http.StatusCreated, gin.H{"message": "Video input is valid."})
+		}
 	})
 
 	server.Run("localhost:8080")
