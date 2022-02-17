@@ -64,5 +64,5 @@ func main() {
 	if port == "" {
 		port = "5000"
 	}
-	server.Run("localhost:" + port)
+	server.Run(":" + port)
 }
