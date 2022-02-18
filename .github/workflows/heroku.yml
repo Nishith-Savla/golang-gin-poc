@@ -1,0 +1,42 @@
+name: Build, Test & Deploy to Heroku
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    container: golang:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Fetch required Go modules
+        run: go mod download
+
+      - name: Build
+        run: go build -o bin/golang-gin-poc -v .
+
+  test:
+    runs-on: ubuntu-latest
+    container: golang:latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run Tests
+        run: go test ./...
+
+  staging:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - run: sudo apt-get install -y ruby-dev
+      - run: sudo gem install dpl --pre
+      - run: dpl heroku api --app golang-gin-video-app-nishith --api_key ${{secrets.HEROKU_API_KEY}}
+    env:
+      name: staging
+      url: https://golang-gin-video-app-nishith.herokuapp.com/
