@@ -1,1 +1,1 @@
-web: bin\golang-gin-poc.exe
+web: bin/golang-gin-poc
