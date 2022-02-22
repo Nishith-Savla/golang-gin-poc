@@ -7,3 +7,6 @@
 
 # bin folder for executables
 bin/
+
+# sqlite db
+**/*.db

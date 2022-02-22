@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/Nishith-Savla/golang-gin-poc/entity"
 	"github.com/Nishith-Savla/golang-gin-poc/service"
@@ -13,6 +14,8 @@ import (
 type VideoController interface {
 	FindAll() []entity.Video
 	Save(ctx *gin.Context) error
+	Update(ctx *gin.Context) error
+	Delete(ctx *gin.Context) error
 	ShowAll(ctx *gin.Context)
 }
 
@@ -48,10 +51,44 @@ func (c *videoController) Save(ctx *gin.Context) error {
 	return nil
 }
 
+func (c *videoController) Update(ctx *gin.Context) error {
+	var video entity.Video
+	err := ctx.ShouldBindJSON(&video)
+	if err != nil {
+		return err
+	}
+
+	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
+	if err != nil {
+		return err
+	}
+	video.ID = id
+
+	err = validate.Struct(video)
+	if err != nil {
+		return err
+	}
+
+	c.service.Update(video)
+	return nil
+}
+
+func (c *videoController) Delete(ctx *gin.Context) error {
+	var video entity.Video
+
+	id, err := strconv.ParseUint(ctx.Param("id"), 0, 0)
+	if err != nil {
+		return err
+	}
+	video.ID = id
+	c.service.Delete(video)
+	return nil
+}
+
 func (c *videoController) ShowAll(ctx *gin.Context) {
 	videos := c.service.FindAll()
 	data := gin.H{
-		"title": "Video Page",
+		"title":  "Video Page",
 		"videos": videos,
 	}
 	ctx.HTML(http.StatusOK, "index.html", data)

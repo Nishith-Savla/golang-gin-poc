@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/Nishith-Savla/golang-gin-poc/entity"
+	"github.com/Nishith-Savla/golang-gin-poc/repository"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -22,7 +23,7 @@ func getVideo() entity.Video {
 }
 
 func TestFindAll(t *testing.T) {
-	service := New()
+	service := New(repository.NewVideoRepository())
 
 	service.Save(getVideo())
 

@@ -7,13 +7,16 @@ import (
 
 	"github.com/Nishith-Savla/golang-gin-poc/controller"
 	"github.com/Nishith-Savla/golang-gin-poc/middlewares"
+	"github.com/Nishith-Savla/golang-gin-poc/repository"
 	"github.com/Nishith-Savla/golang-gin-poc/service"
 	"github.com/gin-gonic/gin"
 	gindump "github.com/tpkeeper/gin-dump"
 )
 
 var (
-	videoService service.VideoService = service.New()
+	videoRepository repository.VideoRepository = repository.NewVideoRepository()
+
+	videoService service.VideoService = service.New(videoRepository)
 	loginService service.LoginService = service.NewLoginService()
 	jwtService   service.JWTService   = service.NewJWTService()
 
@@ -28,6 +31,7 @@ func setupLogOutput() {
 }
 
 func main() {
+	defer videoRepository.CloseDB()
 
 	setupLogOutput()
 
@@ -62,10 +66,27 @@ func main() {
 			if err != nil {
 				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 			} else {
-				ctx.JSON(http.StatusCreated, gin.H{"message": "Video input is valid."})
+				ctx.JSON(http.StatusCreated, gin.H{"message": "Video added"})
 			}
 		})
 
+		apiRoutes.PUT("/videos/:id", func(ctx *gin.Context) {
+			err := videoController.Update(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{"message": "Video updated"})
+			}
+		})
+
+		apiRoutes.DELETE("/videos/:id", func(ctx *gin.Context) {
+			err := videoController.Delete(ctx)
+			if err != nil {
+				ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+			} else {
+				ctx.JSON(http.StatusOK, gin.H{"message": "Video deleted"})
+			}
+		})
 	}
 
 	// The "/view" endpoints are public (no Authorization required)
